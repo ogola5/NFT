@@ -6,23 +6,58 @@
 // global scope, and execute the script.
 const hre = require("hardhat");
 
-async function main() {
-  const currentTimestampInSeconds = Math.round(Date.now() / 1000);
-  const unlockTime = currentTimestampInSeconds + 60;
+async function sleep(ms){
+  return new Promise((resolve)=>setTimeout(resolve,ms));
+}
+async function main(){
+  //Deploy the NFT Contract
+  const nftContract = await
+  hre.ethers.deployContract("CryptoDevsNFT");
+  await nftContract.waitForDeployment();
+  console.log("CryptoDevsNFT deployed to:",nftContract.target);
 
-  const lockedAmount = hre.ethers.parseEther("0.001");
+  //Deploy the Fake marketplace Contract
+  const fakeNftMarketplaceContract = await
+  hre.ethers.deployContract(
+    "FakeNFTMarketplace"
+  );
+  await fakeNftMarketplaceContract.waitForDeployment();
+  console.log(
+    "FakeNFTMarketplace deployed to:",
+    fakeNftMarketplaceContract.target
 
-  const lock = await hre.ethers.deployContract("Lock", [unlockTime], {
-    value: lockedAmount,
+  );
+  //Deploy the DAO Contract
+  const amount = hre.ethers.parseEther("1");
+  const daoContract =await
+  hre.ethers.deployContract("CryptoDevsDAO",[
+    fakeNftMarketplaceContract.target,
+    nftContract.target,
+  ],{value:amount,});
+  await daoContract.waitForDeployment();
+  console.log("CryptoDevsDAO deployed to:",daoContract.target);
+
+  //Sleep for 30 seconds to let Etherscan catch up with the deployments
+  await sleep(30*1000);
+  //Verify the NFT Contract
+  await hre,run("verify:verify",{
+    address:nftContract.target,
+    constructorArguments:[],
+  });
+  //Verify the Fake Marketplace Contract
+  await hre.run("verify:verify",{
+    address:fakeNftMarketplaceContract.target,
+    constructorArguments:[],
+  });
+  //Verify the DAO Contract
+  await hre.run("verify:verify",{
+    address:daoContract.target,
+    constructorArguments:[
+      fakeNftMarketplaceContract.target,
+      nftContract.target,
+    ],
   });
 
-  await lock.waitForDeployment();
-
-  console.log(
-    `Lock with ${ethers.formatEther(
-      lockedAmount
-    )}ETH and unlock timestamp ${unlockTime} deployed to ${lock.target}`
-  );
 }
 
 // We recommend this pattern to be able to use async/await everywhere
