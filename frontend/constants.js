@@ -1,6 +1,6 @@
-export const CryptoDevsNFTAddress = "0x5e72b2D18759F9325240B603f9A8db2D74FD7329";
-export const FakeNFTMarketplace = "0x5e72b2D18759F9325240B603f9A8db2D74FD7329";
-export const CryptoDevsDAOAddress ="0x5e72b2D18759F9325240B603f9A8db2D74FD7329";
+export const CryptoDevsNFTAddress ="0x5e72b2D18759F9325240B603f9A8db2D74FD7329";
+export const FakeNFTMarketplace =  "0xFA3B1be9e569Cd21856c436973D9F6199458d2b9";
+export const CryptoDevsDAOAddress ="0xBC8702B1267b602478105b856ea9180A62126Cf3";
 
 export const CryptoDevsNFTABI =
 [
